@@ -1,0 +1,106 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1 class="page-title">Posts by {{ user.username }}</h1>
+    <div id="postsContainer">
+        {% for post in posts %}
+            <article class="post" aria-labelledby="post-{{ post.id }}">
+                <div class="by">
+                    <img class="av"
+                         src="{{ post.author.image_path }}"
+                         alt="{{ post.author.username }}'s profile picture"
+                         width="32"
+                         height="32"
+                         loading="lazy">
+                        <a
+                               href="{{ url_for('user_posts', user_id=post.author.id) }}">{{ post.author.username }}</a>
+                        <time>{{ post.date_posted.strftime("%B %d, %Y") }}</time>
+                </div>
+                        <h2 id="post-{{ post.id }}">
+                            <a
+                               href="{{ url_for('post_page', post_id=post.id) }}">{{ post.title }}</a>
+                        </h2>
+                        <div class="read" tabindex="0" role="region" aria-labelledby="post-{{ post.id }}">
+                            {% for para in post.content.splitlines() if para.strip() %}<p>{{ para }}</p>{% endfor %}
+                        </div>
+                        <div class="foot"><a href="{{ url_for('post_page', post_id=post.id) }}">Open post</a></div>
+            </article>
+        {% else %}
+            <p class="hint">No posts by this user yet.</p>
+        {% endfor %}
+    </div>
+    {% if has_more %}
+        <div class="text-center mb-4">
+            <button type="button" class="btn-outline-secondary" id="loadMoreBtn">Load more posts</button>
+        </div>
+    {% endif %}
+{% endblock content %}
+{% block scripts %}
+    <script type="module">
+  import { escapeHtml, formatDate } from '/static/js/utils.js';
+
+  const userId = {{ user.id }};
+  let currentOffset = {{ limit }};
+  const limit = {{ limit }};
+  let hasMore = {{ 'true' if has_more else 'false' }};
+
+  const postsContainer = document.getElementById('postsContainer');
+  const loadMoreBtn = document.getElementById('loadMoreBtn');
+
+  function createPostHTML(post) {
+    return `
+      <article class="post" aria-labelledby="post-${post.id}">
+        <div class="by">
+          <img class="av" src="${escapeHtml(post.author.image_path)}" alt="${escapeHtml(post.author.username)}'s profile picture" width="32" height="32" loading="lazy">
+          <b><a href="/users/${post.author.id}/posts">${escapeHtml(post.author.username)}</a></b>
+          <time>${formatDate(post.date_posted)}</time>
+        </div>
+        <h2 id="post-${post.id}"><a href="/posts/${post.id}">${escapeHtml(post.title)}</a></h2>
+        <div class="read" tabindex="0" role="region" aria-labelledby="post-${post.id}"><p>${escapeHtml(post.content)}</p></div>
+        <div class="foot"><a href="/posts/${post.id}">Open post</a></div>
+      </article>
+    `;
+  }
+
+  async function loadMorePosts() {
+    loadMoreBtn.disabled = true;
+    loadMoreBtn.textContent = 'Loading...';
+
+    let errorOccurred = false;
+
+    try {
+      const response = await fetch(`/api/users/${userId}/posts?skip=${currentOffset}&limit=${limit}`);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch posts');
+      }
+
+      const data = await response.json();
+
+      for (const post of data.posts) {
+        postsContainer.insertAdjacentHTML('beforeend', createPostHTML(post));
+      }
+
+      currentOffset += data.posts.length;
+      hasMore = data.has_more;
+
+      if (!hasMore) {
+        loadMoreBtn.classList.add('d-none');
+      }
+    } catch (error) {
+      errorOccurred = true;
+      console.error('Error loading posts:', error);
+      loadMoreBtn.textContent = 'Error - Click to Retry';
+      loadMoreBtn.disabled = false;
+    } finally {
+      if (!errorOccurred && hasMore) {
+        loadMoreBtn.disabled = false;
+        loadMoreBtn.textContent = 'Load More Posts';
+      }
+    }
+  }
+
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener('click', loadMorePosts);
+  }
+    </script>
+{% endblock scripts %}

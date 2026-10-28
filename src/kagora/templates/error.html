@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block col_class %}narrow{% endblock %}
+{% block content %}
+  <section class="card text-center">
+    <h1>{{ status_code }} error</h1>
+    <p>{{ message }}</p>
+    <a class="btn-primary" href="{{ url_for('home') }}">Back home</a>
+  </section>
+{% endblock content %}

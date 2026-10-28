@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>{% block title %}KAgora{% endblock %}</title>
+  <link rel="manifest" href="{{ url_for('static', path='site.webmanifest') }}">
+  <link rel="icon" href="{{ url_for('static', path='icons/favicon.ico') }}">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/kagora.css') }}">
+  <script>
+    /* Apply the saved theme before first paint to avoid a flash */
+    try { var t = localStorage.getItem('kagora-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+  </script>
+  {% block head %}{% endblock %}
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+  <symbol id="horn" viewBox="0 0 24 24"><path d="M3 11v2a1 1 0 0 0 1 1h3l7 4V6L7 10H4a1 1 0 0 0-1 1zM18 8a5 5 0 0 1 0 8"/></symbol>
+  <symbol id="cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></symbol>
+  <symbol id="moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+  <symbol id="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+</svg>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="top"><div class="wrap">
+  <a class="home" href="/" {% if request and request.url.path == '/' %}aria-current="page"{% endif %}>Home</a>
+  <time id="today"></time>
+  <button class="btn" id="theme" type="button" aria-label="Switch theme"><svg class="ic" aria-hidden="true"><use id="themeIc" href="#moon"/></svg></button>
+  <span id="loggedOutNav">
+    <a class="btn login" href="{{ url_for('login_page') }}">Log in</a>
+    <a class="btn solid" href="{{ url_for('register_page') }}">Register</a>
+  </span>
+  <span id="loggedInNav" hidden>
+    <button class="btn" type="button" id="newPostBtn">New post</button>
+    <a class="btn" href="{{ url_for('account_page') }}" id="accountBtn">Account</a>
+    <button class="btn solid" type="button" id="topLogoutBtn">Log out</button>
+  </span>
+</div></div>
+
+<header class="mast">
+  <div class="wrap">
+    <a class="name" href="/">KAgora</a>
+    <p>A public square for ideas</p>
+    <div class="rules"></div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="col {% block col_class %}{% endblock %}">
+    {% block content %}{% endblock %}
+  </div>
+</main>
+
+{# Sidebar dock: icons on the right (desktop), permanent bottom bar (phone) #}
+<nav class="dock" aria-label="Sidebar">
+  <ul>
+    <li class="info">
+      <button class="it" type="button">
+        <svg class="ic" aria-hidden="true"><use href="#info"/></svg>
+        <span class="tip wide">
+          <b>About KAgora</b>
+          <small>A public square for sharing ideas and posts.</small>
+        </span>
+      </button>
+    </li>
+    <li>
+      <a class="it" href="/">
+        <svg class="ic" aria-hidden="true"><use href="#list"/></svg>
+        <span class="tip">Latest Posts</span>
+      </a>
+    </li>
+    <li>
+      <a class="it" href="#">
+        <svg class="ic" aria-hidden="true"><use href="#horn"/></svg>
+        <span class="tip">Announcements</span>
+      </a>
+    </li>
+    <li>
+      <a class="it" href="#">
+        <svg class="ic" aria-hidden="true"><use href="#cal"/></svg>
+        <span class="tip">Calendars</span>
+      </a>
+    </li>
+    <li>
+      <a class="it" href="#">
+        <svg class="ic" aria-hidden="true"><use href="#more"/></svg>
+        <span class="tip">More</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div><span class="fb">KAgora</span><p>A public square for ideas and posts.</p></div>
+      <nav aria-label="Sections"><h3>Sections</h3><ul><li><a href="/">Home</a></li><li><a href="/">Latest Posts</a></li><li><a href="#">Announcements</a></li><li><a href="#">Calendars</a></li></ul></nav>
+      <nav aria-label="Account"><h3>Account</h3><ul><li><a href="/login">Log in</a></li><li><a href="/register">Register</a></li><li><a href="/account">Your account</a></li></ul></nav>
+      <nav aria-label="About"><h3>About</h3><ul><li><a href="#">The author</a></li><li><a href="#">Contact</a></li><li><a href="#">Privacy</a></li></ul></nav>
+    </div>
+    <div class="legal"><span>© 2026 KAgora, created by Karan Rathore. All rights reserved.</span></div>
+  </div>
+</footer>
+
+<div class="modal" id="successModal" hidden role="dialog" aria-modal="true" aria-labelledby="successModalLabel">
+  <div class="modal-card">
+    <h2 id="successModalLabel">Success</h2>
+    <p id="successMessage"></p>
+    <button class="btn-primary" type="button" data-modal-close>Close</button>
+  </div>
+</div>
+<div class="modal" id="createPostModal" hidden role="dialog" aria-modal="true" aria-labelledby="createPostModalLabel">
+  <div class="modal-card">
+    <h2 id="createPostModalLabel">New post</h2>
+    <form id="createPostForm">
+      <div class="field"><label for="title">Title</label><input id="title" name="title" required></div>
+      <div class="field"><label for="content">Content</label><textarea id="content" name="content" required></textarea></div>
+      <button class="btn-primary" type="submit">Publish</button>
+      <button class="btn-outline-secondary" type="button" data-modal-close>Cancel</button>
+    </form>
+  </div>
+</div>
+<div class="modal" id="errorModal" hidden role="dialog" aria-modal="true" aria-labelledby="errorModalLabel">
+  <div class="modal-card">
+    <h2 id="errorModalLabel">Error</h2>
+    <p id="errorMessage"></p>
+    <button class="btn-primary" type="button" data-modal-close>Close</button>
+  </div>
+</div>
+<script src="{{ url_for('static', path='js/kagora.js') }}" defer></script>
+<script type="module">
+  import { getCurrentUser, getToken, logout } from '/static/js/auth.js';
+  import { getErrorMessage, hideModal, showModal } from '/static/js/utils.js';
+
+  const loggedInNav = document.getElementById('loggedInNav');
+  const loggedOutNav = document.getElementById('loggedOutNav');
+  const accountBtn = document.getElementById('accountBtn');
+
+  getCurrentUser().then((user) => {
+    if (!user) return;
+
+    loggedInNav.hidden = false;
+    loggedOutNav.hidden = true;
+    accountBtn.textContent = user.username;
+  });
+
+  document.getElementById('newPostBtn').addEventListener('click', () => {
+    showModal('createPostModal');
+  });
+
+  document.getElementById('topLogoutBtn').addEventListener('click', logout);
+
+  document.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-modal-close]');
+    const trigger = event.target.closest('[data-modal-open]');
+
+    if (button) hideModal(button.closest('.modal').id);
+    if (trigger) showModal(trigger.dataset.modalTarget.slice(1));
+  });
+
+  const createForm = document.getElementById('createPostForm');
+
+  createForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const token = getToken();
+    if (!token) { window.location.href = '/login'; return; }
+
+    try {
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token,
+        },
+        body: JSON.stringify(Object.fromEntries(new FormData(createForm).entries())),
+      });
+
+      if (response.status === 401) { window.location.href = '/login'; return; }
+
+      if (!response.ok) {
+        const error = await response.json();
+        document.getElementById('errorMessage').textContent = getErrorMessage(error);
+        hideModal('createPostModal');
+        showModal('errorModal');
+        return;
+      }
+
+      const data = await response.json();
+      document.getElementById('successMessage').textContent = `Post "${data.title}" created successfully!`;
+      hideModal('createPostModal');
+      showModal('successModal');
+      createForm.reset();
+      document.querySelector('#successModal [data-modal-close]').addEventListener(
+        'click',
+        () => window.location.reload(),
+        { once: true },
+      );
+    } catch (error) {
+      document.getElementById('errorMessage').textContent = 'Network error. Please check your connection and try again.';
+      hideModal('createPostModal');
+      showModal('errorModal');
+    }
+  });
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

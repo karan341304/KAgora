@@ -1,0 +1,60 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Testing and type-checking caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.pyright/
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Alembic local artifacts
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Uploaded or generated media
+# Keep intentional static assets under src/kagora/static/
+src/kagora/media/*
+
+# Keep the media directory itself in Git
+!src/kagora/media/.gitkeep
+
+# IDE and editor files
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.code-workspace
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+
+# Build and packaging files
+build/
+dist/
+*.egg-info/
+.eggs/

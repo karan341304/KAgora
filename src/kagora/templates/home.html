@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+{% block title %}Home | KAgora{% endblock %}
+
+{% block content %}
+<div id="postsContainer">
+{% for post in posts %}
+<article class="post" aria-labelledby="post-{{ post.id }}">
+  <div class="by">
+    {% if post.author.image_path %}
+      <img class="av" src="{{ post.author.image_path }}" alt="" style="object-fit:cover">
+    {% else %}
+      <span class="av" aria-hidden="true">{{ post.author.username[:1] | upper }}</span>
+    {% endif %}
+    <b>{{ post.author.username }}</b>
+    <time datetime="{{ post.date_posted.strftime('%Y-%m-%d') }}">{{ post.date_posted.strftime('%B %d, %Y') }}</time>
+  </div>
+  <h2 id="post-{{ post.id }}"><a href="/posts/{{ post.id }}">{{ post.title }}</a></h2>
+  <div class="read{% if post.content|length > 280 %} long{% endif %}" tabindex="0" role="region" aria-labelledby="post-{{ post.id }}">
+    {% for para in post.content.splitlines() if para.strip() %}<p>{{ para }}</p>{% endfor %}
+  </div>
+  <div class="foot"><a href="/posts/{{ post.id }}">Open post</a></div>
+</article>
+{% else %}
+<p class="by">No posts yet.</p>
+{% endfor %}
+</div>
+{% if has_more %}
+<div class="text-center"><button type="button" class="btn-outline-secondary" id="loadMoreBtn">Load more posts</button></div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script type="module">
+  import { escapeHtml, formatDate } from '/static/js/utils.js';
+  let currentOffset = {{ limit }};
+  const limit = {{ limit }};
+  let hasMore = {{ 'true' if has_more else 'false' }};
+  const postsContainer = document.getElementById('postsContainer');
+  const loadMoreBtn = document.getElementById('loadMoreBtn');
+  function createPostHTML(post) {
+    return `<article class="post" aria-labelledby="post-${post.id}">
+      <div class="by"><img class="av" src="${escapeHtml(post.author.image_path)}" alt="" width="32" height="32"><b><a href="/users/${post.author.id}/posts">${escapeHtml(post.author.username)}</a></b><time>${formatDate(post.date_posted)}</time></div>
+      <h2 id="post-${post.id}"><a href="/posts/${post.id}">${escapeHtml(post.title)}</a></h2>
+      <div class="read" tabindex="0" role="region" aria-labelledby="post-${post.id}"><p>${escapeHtml(post.content)}</p></div>
+      <div class="foot"><a href="/posts/${post.id}">Open post</a></div>
+    </article>`;
+  }
+  async function loadMorePosts() {
+    loadMoreBtn.disabled = true;
+    loadMoreBtn.textContent = 'Loading...';
+    try {
+      const response = await fetch(`/api/posts?skip=${currentOffset}&limit=${limit}`);
+      if (!response.ok) throw new Error('Failed to fetch posts');
+      const data = await response.json();
+      data.posts.forEach((post) => postsContainer.insertAdjacentHTML('beforeend', createPostHTML(post)));
+      currentOffset += data.posts.length;
+      hasMore = data.has_more;
+      if (!hasMore) loadMoreBtn.hidden = true;
+      else loadMoreBtn.disabled = false;
+      if (hasMore) loadMoreBtn.textContent = 'Load more posts';
+    } catch (error) {
+      console.error('Error loading posts:', error);
+      loadMoreBtn.textContent = 'Error - Click to retry';
+      loadMoreBtn.disabled = false;
+    }
+  }
+  if (loadMoreBtn) loadMoreBtn.addEventListener('click', loadMorePosts);
+</script>
+{% endblock %}
