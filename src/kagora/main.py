@@ -1,5 +1,6 @@
 from typing import Annotated
 from contextlib import asynccontextmanager
+from pathlib import Path
 from fastapi.exception_handlers import (
     http_exception_handler,
     request_validation_exception_handler,
@@ -18,6 +19,8 @@ from .config import settings
 from .database import engine, get_db
 from .routers import users, posts 
 
+BASE_DIR = Path(__file__).parent
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     yield
@@ -26,9 +29,9 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(lifespan= lifespan)
 
-app.mount("/static",StaticFiles(directory="static"),name="static")
+app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(posts.router, prefix="/api/posts", tags=["posts"])

@@ -58,18 +58,11 @@ a public square for sharing ideas and posts.
 
 Then open `http://localhost:8000`.
 
-## Project output
+## See KAgora in action
 
-Paste screenshots, demo links, or other project outputs here:
+Here is a quick look at the KAgora home page running locally:
 
-<!--
-Your screenshots and output links go here.
-
-Example:
-![KAgora home page](docs/images/home.png)
-
-Live demo: https://your-demo-url.example
--->
+![KAgora home page](docs/images/home.jpg)
 
 ## Closing note
 
